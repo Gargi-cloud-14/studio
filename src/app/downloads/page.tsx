@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useAuth } from '@/hooks/useAuth';
@@ -5,7 +6,12 @@ import { orders } from '@/lib/data';
 import { DownloadItem } from '@/components/DownloadItem';
 import { Button } from '@/components/ui/button';
 import { DownloadCloud, UserX } from 'lucide-react';
-import type { CartItem } from '@/lib/types';
+import type { CartItem, Order } from '@/lib/types';
+
+interface DigitalItemEntry {
+  product: CartItem['product'];
+  order: Order;
+}
 
 export default function DownloadsPage() {
   const { isLoggedIn, user, showLogin } = useAuth();
@@ -23,20 +29,18 @@ export default function DownloadsPage() {
     );
   }
 
-  // Filter orders that are paid and belong to the "logged-in" user.
-  // In a real app, you would filter by user.id.
-  const paidOrders = orders.filter(order => order.status === 'Paid');
-
-  const digitalItems = paidOrders.flatMap(order => 
-    order.items.filter(item => item.product.isDigital)
+  // Filter orders that belong to the "logged-in" user.
+  // Then, from those orders, get all digital items.
+  const userOrders = orders; // In a real app, you would filter by user.id
+  
+  const digitalItems: DigitalItemEntry[] = userOrders.flatMap(order => 
+    order.items
+      .filter(item => item.product.isDigital)
+      .map(item => ({ product: item.product, order }))
   );
 
-  const uniqueDigitalItems = digitalItems.reduce<CartItem[]>((acc, current) => {
-    if (!acc.find(item => item.product.id === current.product.id)) {
-      acc.push(current);
-    }
-    return acc;
-  }, []);
+  // In this prototype, we'll show every purchased instance.
+  // A real app might unique-ify by product ID if desired.
 
   return (
     <div className="container mx-auto px-4 py-12 animate-in fade-in-0">
@@ -48,10 +52,10 @@ export default function DownloadsPage() {
           </p>
         </div>
 
-        {uniqueDigitalItems.length > 0 ? (
+        {digitalItems.length > 0 ? (
           <div className="space-y-4">
-            {uniqueDigitalItems.map(({ product }) => (
-              <DownloadItem key={product.id} product={product} />
+            {digitalItems.map(({ product, order }) => (
+              <DownloadItem key={`${order.id}-${product.id}`} product={product} order={order} />
             ))}
           </div>
         ) : (

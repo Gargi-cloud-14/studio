@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from 'next/link';
@@ -9,9 +10,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CreditCard, ShoppingBag } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { orders } from '@/lib/data';
 
 export default function CheckoutPage() {
-  const { items, clearCart } = useCart();
+  const { items, clearCart, totalPrice } = useCart();
   const router = useRouter();
   const { toast } = useToast();
   const hasPhysicalProduct = items.some(item => !item.product.isDigital);
@@ -31,14 +33,32 @@ export default function CheckoutPage() {
 
   const handlePlaceOrder = () => {
     // This simulates placing an order and clearing the cart.
-    // In a real app, you would handle payment processing here.
+    // In a real app, this logic would live in a Stripe webhook.
+    const mockOrderId = `ord_${Date.now()}`;
+    const newOrder = {
+      id: mockOrderId,
+      items: items,
+      status: 'Paid' as const,
+      date: new Date().toISOString(),
+      total: totalPrice,
+      // In a real app, shipping address would be collected from the form.
+      shippingAddress: hasPhysicalProduct ? {
+        name: 'Alex Doe',
+        address: '123 Prototype Ave',
+        city: 'Nextville',
+        state: 'JS',
+        zip: '12345'
+      } : undefined,
+    };
+    
+    // Add the new order to our mock data.
+    // In a real app, this would be a database insert.
+    orders.unshift(newOrder);
+
     toast({
       title: 'Order Placed!',
       description: 'Thank you for your purchase. You will be redirected shortly.',
     });
-    
-    // In a real app, you would create an order ID and redirect to its status page.
-    const mockOrderId = 'ord_12345';
     
     setTimeout(() => {
       clearCart();
