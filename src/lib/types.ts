@@ -26,6 +26,8 @@ export interface Order {
     state: string;
     zip: string;
   };
+  accessDuration?: number; // in seconds
+  linkActivatedAt?: string; // ISO string
 }
 
 export interface User {

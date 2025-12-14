@@ -8,15 +8,20 @@ import { ShippingForm } from '@/components/ShippingForm';
 import { CartSummary } from '@/components/CartSummary';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { CreditCard, ShoppingBag } from 'lucide-react';
+import { CreditCard, ShoppingBag, Clock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { orders } from '@/lib/data';
+import { useState } from 'react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
 
 export default function CheckoutPage() {
   const { items, clearCart, totalPrice } = useCart();
   const router = useRouter();
   const { toast } = useToast();
   const hasPhysicalProduct = items.some(item => !item.product.isDigital);
+  const hasDigitalProduct = items.some(item => item.product.isDigital);
+  const [accessDuration, setAccessDuration] = useState<string>("900"); // Default 15 minutes (900s)
 
   if (items.length === 0) {
     return (
@@ -40,7 +45,8 @@ export default function CheckoutPage() {
       status: 'Paid' as const,
       date: new Date().toISOString(),
       total: totalPrice,
-      // In a real app, shipping address would be collected from the form.
+      linkActivatedAt: hasDigitalProduct ? new Date().toISOString() : undefined,
+      accessDuration: hasDigitalProduct ? parseInt(accessDuration) : undefined,
       shippingAddress: hasPhysicalProduct ? {
         name: 'Alex Doe',
         address: '123 Prototype Ave',
@@ -77,6 +83,35 @@ export default function CheckoutPage() {
               </CardHeader>
               <CardContent>
                 <ShippingForm />
+              </CardContent>
+            </Card>
+          )}
+           {hasDigitalProduct && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="font-headline text-2xl flex items-center">
+                  <Clock className="mr-3 h-6 w-6 text-primary" />
+                  Digital Access
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <Label htmlFor="access-duration">Download Link Expiration</Label>
+                  <Select value={accessDuration} onValueChange={setAccessDuration}>
+                    <SelectTrigger id="access-duration" className="w-full">
+                      <SelectValue placeholder="Select access duration" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="15">15 Seconds (Demo)</SelectItem>
+                      <SelectItem value="30">30 Seconds (Demo)</SelectItem>
+                      <SelectItem value="60">1 Minute (Demo)</SelectItem>
+                      <SelectItem value="300">5 Minutes (Demo)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                   <p className="text-sm text-muted-foreground">
+                    Choose how long your secure download links will be active after purchase.
+                  </p>
+                </div>
               </CardContent>
             </Card>
           )}
