@@ -7,7 +7,7 @@ import { getPlaceholderImage } from '@/lib/data';
 import type { Product, Order } from '@/lib/types';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Download, Lock, RefreshCw, AlertTriangle, Timer } from 'lucide-react';
+import { Download, Lock, AlertTriangle, Timer } from 'lucide-react';
 import { useDownloadTimer } from '@/hooks/useDownloadTimer';
 
 interface DownloadItemProps {
@@ -17,7 +17,7 @@ interface DownloadItemProps {
 
 export function DownloadItem({ product, order }: DownloadItemProps) {
   const image = getPlaceholderImage(product.imageId);
-  const { timeRemaining, isExpired, isGenerating, generateLink, download } = useDownloadTimer(order);
+  const { timeRemaining, isExpired, download } = useDownloadTimer(order);
 
   const isPaid = order.status === 'Paid';
 
@@ -31,16 +31,7 @@ export function DownloadItem({ product, order }: DownloadItemProps) {
       );
     }
     
-    if (isGenerating) {
-        return (
-          <Button disabled>
-            <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-            Generating...
-          </Button>
-        );
-    }
-
-    if(isExpired) {
+    if (isExpired) {
         return (
             <Button disabled variant="secondary">
                 <AlertTriangle className="mr-2 h-4 w-4" />
@@ -49,14 +40,8 @@ export function DownloadItem({ product, order }: DownloadItemProps) {
         );
     }
     
-    if (timeRemaining === null) {
-      return (
-        <Button onClick={generateLink} className="bg-accent text-accent-foreground hover:bg-accent/90">
-          Generate Link
-        </Button>
-      );
-    }
-
+    // If order is paid and not expired, show the download button.
+    // The timer will be visible if timeRemaining is not null.
     return (
         <Button onClick={download}>
             <Download className="mr-2 h-4 w-4" />
@@ -67,7 +52,7 @@ export function DownloadItem({ product, order }: DownloadItemProps) {
   };
 
   const renderTimer = () => {
-    if (isPaid && !isExpired && timeRemaining !== null && !isGenerating) {
+    if (isPaid && !isExpired && timeRemaining) {
       const { minutes, seconds } = timeRemaining;
       return (
         <div className="flex items-center text-sm text-amber-600 font-mono">

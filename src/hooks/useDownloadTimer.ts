@@ -14,7 +14,6 @@ export function useDownloadTimer(order: Order) {
   const { toast } = useToast();
   const [timeRemaining, setTimeRemaining] = useState<TimeRemaining | null>(null);
   const [isExpired, setIsExpired] = useState(false);
-  const [isGenerating, setIsGenerating] = useState(false);
 
   const calculateTimeRemaining = useCallback(() => {
     if (!order.linkActivatedAt || !order.accessDuration) {
@@ -62,37 +61,6 @@ export function useDownloadTimer(order: Order) {
 
     return () => clearInterval(timer);
   }, [order, calculateTimeRemaining]);
-
-  const generateLink = useCallback(() => {
-    if (order.status !== 'Paid') {
-      toast({
-        variant: "destructive",
-        title: "Order Not Paid",
-        description: "This item is not available for download yet.",
-      });
-      return;
-    }
-
-    // This function doesn't actually need to exist in the mock version,
-    // as linkActivatedAt is set at checkout. This simulates a "regenerate" button
-    // which in a real app might create a new token, but here we just start the UI timer.
-    setIsGenerating(true);
-    toast({
-      title: "Generating Secure Link...",
-      description: "Your download will be ready shortly.",
-    });
-
-    setTimeout(() => {
-      // In a real app, you would fetch new order data here.
-      // For the mock, we just update the local state.
-      const remaining = calculateTimeRemaining();
-      if(remaining) {
-        setTimeRemaining(remaining);
-      }
-      setIsGenerating(false);
-    }, 1500);
-
-  }, [order.status, toast, calculateTimeRemaining]);
   
   const download = useCallback(() => {
     if (isExpired) {
@@ -113,8 +81,6 @@ export function useDownloadTimer(order: Order) {
   return {
     timeRemaining,
     isExpired,
-    isGenerating,
-    generateLink,
     download
   };
 }
