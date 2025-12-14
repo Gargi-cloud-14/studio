@@ -27,3 +27,10 @@ export interface Order {
     zip: string;
   };
 }
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  initials: string;
+}

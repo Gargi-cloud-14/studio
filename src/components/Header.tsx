@@ -1,10 +1,11 @@
 "use client";
 
 import Link from 'next/link';
-import { ShoppingBag, Package, User } from 'lucide-react';
+import { ShoppingBag, Package } from 'lucide-react';
 import { Logo } from '@/components/icons';
 import { useCart } from '@/hooks/useCart';
 import { Button } from '@/components/ui/button';
+import { UserNav } from '@/components/UserNav';
 
 export function Header() {
   const { totalItems } = useCart();
@@ -21,7 +22,7 @@ export function Header() {
           <Logo className="h-6 w-6 text-primary" />
           <span>Pixel & Forge</span>
         </Link>
-        <nav className="flex items-center gap-4">
+        <nav className="flex items-center gap-2">
           {navItems.map(item => (
             <Button key={item.href} variant="ghost" size="icon" asChild>
               <Link href={item.href} aria-label={item.label}>
@@ -36,11 +37,7 @@ export function Header() {
               </Link>
             </Button>
           ))}
-          <Button variant="ghost" size="icon" asChild>
-             <Link href="#" aria-label="Profile">
-                <User className="h-5 w-5" />
-            </Link>
-          </Button>
+          <UserNav />
         </nav>
       </div>
     </header>
