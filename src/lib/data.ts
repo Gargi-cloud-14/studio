@@ -129,32 +129,4 @@ export const products: Product[] = [
   },
 ];
 
-export const orders: Order[] = [
-  {
-    id: 'ord_12345',
-    items: [
-      { product: products[1], quantity: 1 },
-      { product: products[3], quantity: 1 },
-    ],
-    status: 'Paid',
-    date: '2023-10-26T14:30:00Z',
-    total: products[1].price + products[3].price,
-  },
-  {
-    id: 'ord_67890',
-    items: [
-      { product: products[0], quantity: 1 },
-      { product: products[2], quantity: 2 },
-    ],
-    status: 'Shipped',
-    date: '2023-10-24T10:00:00Z',
-    total: products[0].price + (products[2].price * 2),
-    shippingAddress: {
-      name: 'Jane Doe',
-      address: '123 Craft Lane',
-      city: 'Artisanville',
-      state: 'CA',
-      zip: '90210'
-    }
-  }
-];
+export const orders: Order[] = [];
