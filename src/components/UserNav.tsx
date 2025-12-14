@@ -2,6 +2,7 @@
 'use client';
 
 import { useAuth } from '@/hooks/useAuth';
+import { useCart } from '@/hooks/useCart';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -18,6 +19,11 @@ import Link from 'next/link';
 
 export function UserNav() {
   const { isLoggedIn, user, showLogin, logout } = useAuth();
+  const { clearCart } = useCart();
+
+  const handleLogout = () => {
+    logout(clearCart);
+  };
 
   if (!isLoggedIn || !user) {
     return (
@@ -59,7 +65,7 @@ export function UserNav() {
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => logout()}>
+        <DropdownMenuItem onClick={handleLogout}>
           <LogOut className="mr-2" />
           <span>Log out</span>
         </DropdownMenuItem>

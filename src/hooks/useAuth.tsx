@@ -3,7 +3,6 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { LoginModal } from '@/components/LoginModal';
 import type { User } from '@/lib/types';
-import { useCart } from './useCart';
 
 interface AuthContextType {
   isLoggedIn: boolean;
@@ -11,7 +10,7 @@ interface AuthContextType {
   showLogin: () => void;
   hideLogin: () => void;
   login: (email: string, name: string) => void;
-  logout: () => void;
+  logout: (clearCart: () => void) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -20,8 +19,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [isLoginVisible, setLoginVisible] = useState(false);
-  const { clearCart } = useCart();
-
+  
   const showLogin = () => setLoginVisible(true);
   const hideLogin = () => setLoginVisible(false);
 
@@ -33,12 +31,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     hideLogin();
   };
 
-  const logout = () => {
+  const logout = (clearCart: () => void) => {
     setUser(null);
     setIsLoggedIn(false);
     clearCart();
   };
-
+  
   const value = {
     isLoggedIn,
     user,
