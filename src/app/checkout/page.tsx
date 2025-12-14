@@ -33,7 +33,6 @@ export default function CheckoutPage() {
 
   const handlePlaceOrder = () => {
     // This simulates placing an order and clearing the cart.
-    // In a real app, this logic would live in a Stripe webhook.
     const mockOrderId = `ord_${Date.now()}`;
     const newOrder = {
       id: mockOrderId,
@@ -52,7 +51,6 @@ export default function CheckoutPage() {
     };
     
     // Add the new order to our mock data.
-    // In a real app, this would be a database insert.
     orders.unshift(newOrder);
 
     toast({
@@ -62,7 +60,7 @@ export default function CheckoutPage() {
     
     setTimeout(() => {
       clearCart();
-      router.push(`/order-status/${mockOrderId}`);
+      router.push(`/success?orderId=${mockOrderId}`);
     }, 1500);
   };
 
