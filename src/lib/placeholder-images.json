@@ -1,3 +1,58 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "hero-image",
+      "description": "A well-lit artisan workshop with tools and materials.",
+      "imageUrl": "https://images.unsplash.com/photo-1552836514-bbf70221e437?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxhcnRpc2FuJTIwd29ya3Nob3B8ZW58MHx8fHwxNzY1NzAyMTc3fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "artisan workshop"
+    },
+    {
+      "id": "leather-journal",
+      "description": "A handcrafted leather journal on a wooden table.",
+      "imageUrl": "https://images.unsplash.com/photo-1653569760000-1e33ac649550?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxsZWF0aGVyJTIwam91cm5hbHxlbnwwfHx8fDE3NjU2MjM0NDJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "leather journal"
+    },
+    {
+      "id": "ceramic-mug",
+      "description": "A rustic handmade ceramic mug.",
+      "imageUrl": "https://images.unsplash.com/photo-1723021178142-369f81614c97?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxjZXJhbWljJTIwbXVnfGVufDB8fHx8MTc2NTY0Mjc3OXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "ceramic mug"
+    },
+    {
+      "id": "art-print",
+      "description": "A minimalist art print in a simple frame.",
+      "imageUrl": "https://images.unsplash.com/photo-1584448097764-374f81551427?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxhcnQlMjBwcmludHxlbnwwfHx8fDE3NjU3MTUzNTV8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "art print"
+    },
+    {
+      "id": "wooden-coaster",
+      "description": "A set of carved wooden coasters.",
+      "imageUrl": "https://images.unsplash.com/photo-1754225242953-4d4e751aec73?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHx3b29kZW4lMjBjb2FzdGVyfGVufDB8fHx8MTc2NTcxNTM1NXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "wooden coaster"
+    },
+    {
+      "id": "website-template",
+      "description": "A digital preview of a clean website template.",
+      "imageUrl": "https://images.unsplash.com/photo-1642132652859-3ef5a1048fd1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHx3ZWJzaXRlJTIwdGVtcGxhdGV8ZW58MHx8fHwxNzY1NzE1MzU1fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "website template"
+    },
+    {
+      "id": "icon-set",
+      "description": "A collection of minimalist line icons.",
+      "imageUrl": "https://images.unsplash.com/photo-1662770120478-14fe569cf520?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxpY29uJTIwc2V0fGVufDB8fHx8MTc2NTY3Mjc2Nnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "icon set"
+    },
+    {
+      "id": "font-bundle",
+      "description": "An elegant display of a custom font family.",
+      "imageUrl": "https://images.unsplash.com/photo-1695116795911-7d2a7287fc5d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxmb250JTIwdHlwb2dyYXBoeXxlbnwwfHx8fDE3NjU3MTUzNTV8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "font typography"
+    },
+    {
+      "id": "photo-presets",
+      "description": "Before and after examples of a photo edited with a preset.",
+      "imageUrl": "https://images.unsplash.com/photo-1680134453909-eaf9348719d6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxwaG90byUyMHByZXNldHN8ZW58MHx8fHwxNzY1NzE1MzU1fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "photo presets"
+    }
+  ]
 }
