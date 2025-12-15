@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
+import type { CartItem } from '@/lib/types';
 
 // Validate that the Stripe secret key is available.
 if (!process.env.STRIPE_SECRET_KEY) {
@@ -12,25 +13,33 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   typescript: true,
 });
 
-export async function POST() {
+export async function POST(request: Request) {
+  const { items }: { items: CartItem[] } = await request.json();
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:9002';
+  
+  if (!items || items.length === 0) {
+    return NextResponse.json({ error: 'No items in the cart.' }, { status: 400 });
+  }
+
+  // Transform cart items into Stripe's line_items format
+  const line_items = items.map(item => ({
+    price_data: {
+      currency: 'usd',
+      product_data: {
+        name: item.product.name,
+        description: item.product.description,
+        // We could add images here if they were publicly hosted URLs
+        // images: [item.product.imageUrl]
+      },
+      unit_amount: Math.round(item.product.price * 100), // Price in cents
+    },
+    quantity: item.quantity,
+  }));
 
   try {
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
-      line_items: [
-        {
-          price_data: {
-            currency: 'usd',
-            product_data: {
-              name: 'Sample Product',
-              description: 'This is a sample product for testing Stripe Checkout.',
-            },
-            unit_amount: 2000, // $20.00 USD
-          },
-          quantity: 1,
-        },
-      ],
+      line_items: line_items,
       mode: 'payment',
       success_url: `${baseUrl}/success`,
       cancel_url: `${baseUrl}/cancel`,
@@ -45,6 +54,6 @@ export async function POST() {
 
   } catch (error: any) {
     console.error('Stripe Error:', error.message);
-    return NextResponse.json({ error: 'Error creating checkout session' }, { status: 500 });
+    return NextResponse.json({ error: `Error creating checkout session: ${error.message}` }, { status: 500 });
   }
 }
