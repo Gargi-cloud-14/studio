@@ -7,10 +7,10 @@
 //
 // Follow the instructions in the README to get your Firebase config.
 export const firebaseConfig = {
-  apiKey: "REPLACE_WITH_YOUR_API_KEY",
-  authDomain: "REPLACE_WITH_YOUR_AUTH_DOMAIN",
-  projectId: "REPLACE_WITH_YOUR_PROJECT_ID",
-  storageBucket: "REPLACE_WITH_YOUR_STORAGE_BUCKET",
-  messagingSenderId: "REPLACE_WITH_YOUR_MESSAGING_SENDER_ID",
-  appId: "REPLACE_WITH_YOUR_APP_ID",
+  "projectId": "studio-8875130184-ec33a",
+  "appId": "1:485841888090:web:816a57bd102889b0fd0963",
+  "apiKey": "AIzaSyBvZze1GwyV03FKGa_H3mrKHq28kk8WmOU",
+  "authDomain": "studio-8875130184-ec33a.firebaseapp.com",
+  "measurementId": "",
+  "messagingSenderId": "485841888090"
 };
