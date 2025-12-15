@@ -1,8 +1,13 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 
-// Ensure Stripe is initialized with the secret key, handling potential undefined values.
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
+// Validate that the Stripe secret key is available.
+if (!process.env.STRIPE_SECRET_KEY) {
+  throw new Error('STRIPE_SECRET_KEY is not set in the environment variables.');
+}
+
+// Initialize Stripe with the secret key.
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: '2024-06-20',
   typescript: true,
 });
