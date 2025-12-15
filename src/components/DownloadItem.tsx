@@ -59,7 +59,7 @@ export function DownloadItem({ product, order }: DownloadItemProps) {
       return (
         <div className="flex items-center text-sm text-amber-600 font-mono">
             <Timer className="mr-1.5 h-4 w-4" />
-            <span>{minutes.toString().padStart(2, '0')}:{seconds.toString().padStart(2, '0')}<'''></span>
+            <span>{minutes.toString().padStart(2, '0')}:{seconds.toString().padStart(2, '0')}</span>
         </div>
       )
     }
