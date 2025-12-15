@@ -37,9 +37,13 @@ export async function POST(request: Request) {
     quantity: item.quantity,
   }));
   
-  const metadata: Stripe.MetadataParam = {};
+  // Attach accessDuration to the success URL so we can retrieve it on the client side
+  // This is a workaround for the prototype. In a real app, you would store this
+  // in your database against a pre-created order ID and pass that ID in the metadata.
+  const successUrl = new URL('/success', baseUrl);
+  successUrl.searchParams.append('session_id', '{CHECKOUT_SESSION_ID}');
   if (accessDuration) {
-    metadata.accessDuration = accessDuration.toString();
+    successUrl.searchParams.append('accessDuration', accessDuration.toString());
   }
 
   try {
@@ -47,12 +51,8 @@ export async function POST(request: Request) {
       payment_method_types: ['card'],
       line_items: line_items,
       mode: 'payment',
-      success_url: `${baseUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: successUrl.toString(),
       cancel_url: `${baseUrl}/cancel`,
-      metadata: metadata,
-      payment_intent_data: {
-        metadata: metadata,
-      },
     });
 
     if (session.url) {

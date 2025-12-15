@@ -1,3 +1,4 @@
+
 export interface Product {
   id: string;
   name: string;
@@ -15,6 +16,7 @@ export interface CartItem {
 
 export interface Order {
   id: string;
+  userId: string; // Add userId to associate order with a user
   items: CartItem[];
   status: 'Paid' | 'Processing' | 'Shipped' | 'Delivered' | 'Cancelled';
   date: string;

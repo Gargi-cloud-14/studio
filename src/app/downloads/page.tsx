@@ -16,7 +16,7 @@ interface DigitalItemEntry {
 export default function DownloadsPage() {
   const { isLoggedIn, user, showLogin } = useAuth();
 
-  if (!isLoggedIn) {
+  if (!isLoggedIn || !user) {
     return (
       <div className="container mx-auto px-4 py-24 text-center">
         <UserX className="mx-auto h-24 w-24 text-muted-foreground" />
@@ -29,9 +29,8 @@ export default function DownloadsPage() {
     );
   }
 
-  // Filter orders that belong to the "logged-in" user.
-  // Then, from those orders, get all digital items.
-  const userOrders = orders; // In a real app, you would filter by user.id
+  // Filter orders that belong to the logged-in user.
+  const userOrders = orders.filter(order => order.userId === user.id);
   
   const digitalItems: DigitalItemEntry[] = userOrders.flatMap(order => 
     order.items

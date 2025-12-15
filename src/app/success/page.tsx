@@ -8,24 +8,28 @@ import { CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { orders } from '@/lib/data';
 import { useCart } from '@/hooks/useCart';
+import { useAuth } from '@/hooks/useAuth';
 
 function SuccessContent() {
   const searchParams = useSearchParams();
   const sessionId = searchParams.get('session_id');
   const { items: cartItems, totalPrice } = useCart(); // We'll use the cart state before it was cleared
+  const { user } = useAuth();
 
   useEffect(() => {
     // In a real app, you would fetch the session from Stripe to verify payment
     // and get the metadata. In this prototype, we'll simulate order creation
     // using the cart state from before redirection.
-    if (sessionId && cartItems.length > 0) {
+    if (sessionId && user && cartItems.length > 0) {
       
-      // In a real app, you'd retrieve this from the Stripe session object
-      // const accessDuration = session.metadata.accessDuration
-      const accessDuration = 86400; // Default to 24h for prototype
+      // In a real app, you'd retrieve this from the Stripe session object's metadata
+      // For the prototype, we get it from search params if available, or default.
+      const accessDurationParam = searchParams.get('accessDuration');
+      const accessDuration = accessDurationParam ? parseInt(accessDurationParam) : 86400; // Default to 24h
       
       const newOrder = {
         id: sessionId.substring(0, 12),
+        userId: user.id, // Associate the order with the logged-in user
         items: cartItems,
         status: 'Paid' as const,
         date: new Date().toISOString(),
@@ -41,7 +45,7 @@ function SuccessContent() {
       }
     }
     // The cart is cleared in CheckoutButton.tsx before redirecting to Stripe
-  }, [sessionId, cartItems, totalPrice, searchParams]);
+  }, [sessionId, cartItems, totalPrice, searchParams, user]);
 
   return (
     <div className="container mx-auto px-4 py-24 text-center">
