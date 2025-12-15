@@ -25,7 +25,8 @@ function SuccessContent() {
       // In a real app, you'd retrieve this from the Stripe session object's metadata
       // For the prototype, we get it from search params if available, or default.
       const accessDurationParam = searchParams.get('accessDuration');
-      const accessDuration = accessDurationParam ? parseInt(accessDurationParam) : 86400; // Default to 24h
+      const hasDigitalProduct = cartItems.some(item => item.product.isDigital);
+      const accessDuration = accessDurationParam ? parseInt(accessDurationParam) : undefined;
       
       const newOrder = {
         id: sessionId.substring(0, 12),
@@ -34,8 +35,11 @@ function SuccessContent() {
         status: 'Paid' as const,
         date: new Date().toISOString(),
         total: totalPrice,
-        accessDuration: accessDuration,
-        linkActivatedAt: new Date().toISOString(), // Start the timer now!
+        // Only add these properties if a digital product was in the cart
+        ...(hasDigitalProduct && {
+            accessDuration: accessDuration,
+            linkActivatedAt: new Date().toISOString(), // Start the timer now!
+        })
       };
 
       // Add to our mock database

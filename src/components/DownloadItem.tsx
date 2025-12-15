@@ -22,6 +22,8 @@ export function DownloadItem({ product, order }: DownloadItemProps) {
   const isPaid = order.status === 'Paid';
 
   const renderButton = () => {
+    if (!product.isDigital) return null;
+
     if (!isPaid) {
       return (
         <Button disabled variant="outline">
@@ -52,12 +54,12 @@ export function DownloadItem({ product, order }: DownloadItemProps) {
   };
 
   const renderTimer = () => {
-    if (isPaid && !isExpired && timeRemaining) {
+    if (product.isDigital && isPaid && !isExpired && timeRemaining) {
       const { minutes, seconds } = timeRemaining;
       return (
         <div className="flex items-center text-sm text-amber-600 font-mono">
             <Timer className="mr-1.5 h-4 w-4" />
-            <span>{minutes.toString().padStart(2, '0')}:{seconds.toString().padStart(2, '0')}</span>
+            <span>{minutes.toString().padStart(2, '0')}:{seconds.toString().padStart(2, '0')}<'''></span>
         </div>
       )
     }
