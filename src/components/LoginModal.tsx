@@ -22,28 +22,25 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(false);
 
   const auth = getAuth();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleAuthAction = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
+    
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      let userCredential;
+      if (isSignUp) {
+        userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      } else {
+        userCredential = await signInWithEmailAndPassword(auth, email, password);
+      }
       login(userCredential.user);
     } catch (err: any) {
-      // If user doesn't exist, try to create a new account
-      if (err.code === 'auth/user-not-found') {
-        try {
-          const newUserCredential = await createUserWithEmailAndPassword(auth, email, password);
-          login(newUserCredential.user);
-        } catch (createErr: any) {
-          setError(createErr.message);
-        }
-      } else {
-        setError(err.message);
-      }
+      setError(err.message);
     } finally {
       setLoading(false);
     }
@@ -62,6 +59,11 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
       setLoading(false);
     }
   };
+  
+  const toggleAuthMode = () => {
+    setIsSignUp(!isSignUp);
+    setError('');
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -70,14 +72,14 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
       >
         <DialogHeader>
           <DialogTitle className="font-headline text-3xl text-center text-primary">
-            Welcome
+            {isSignUp ? 'Create an Account' : 'Welcome Back'}
           </DialogTitle>
           <DialogDescription className="text-center text-muted-foreground">
-            Sign in or create an account to continue.
+            {isSignUp ? 'Enter your details to get started.' : 'Sign in to access your account.'}
           </DialogDescription>
         </DialogHeader>
-        {error && <p className="text-destructive text-sm text-center">{error}</p>}
-        <form onSubmit={handleLogin} className={cn('space-y-6', error && 'shake')}>
+        {error && <p className="text-destructive text-sm text-center bg-destructive/10 p-2 rounded-md">{error}</p>}
+        <form onSubmit={handleAuthAction} className={cn('space-y-6', error && 'shake')}>
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input
@@ -105,16 +107,24 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
             />
           </div>
           <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90" disabled={loading}>
-            {loading ? <Loader2 className="animate-spin" /> : 'Sign In / Sign Up'}
+            {loading ? <Loader2 className="animate-spin" /> : (isSignUp ? 'Sign Up' : 'Sign In')}
           </Button>
         </form>
-        <div className="relative my-4">
+        
+        <p className="text-center text-sm text-muted-foreground">
+          {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
+          <button onClick={toggleAuthMode} className="underline hover:text-primary">
+            {isSignUp ? 'Sign In' : 'Sign Up'}
+          </button>
+        </p>
+
+        <div className="relative my-2">
           <div className="absolute inset-0 flex items-center">
             <span className="w-full border-t border-border" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
             <span className="bg-background/80 px-2 text-muted-foreground">
-              Or continue with
+              Or
             </span>
           </div>
         </div>
