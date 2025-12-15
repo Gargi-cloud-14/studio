@@ -5,7 +5,6 @@ import { products } from '@/lib/data';
 import { ProductCard } from '@/components/ProductCard';
 import { getPlaceholderImage } from '@/lib/data';
 import type { Product } from '@/lib/types';
-import { CheckoutButton } from '@/components/CheckoutButton';
 
 export default function Home() {
   const heroImage = getPlaceholderImage('hero-image');
@@ -31,9 +30,9 @@ export default function Home() {
           <p className="mt-4 max-w-2xl text-lg md:text-xl drop-shadow-md">
             Curated digital assets and handcrafted physical goods for the modern creator.
           </p>
-          <div className="mt-8">
-            <CheckoutButton />
-          </div>
+          <Button asChild size="lg" className="mt-8 bg-accent text-accent-foreground hover:bg-accent/90">
+            <Link href="#products">Explore Collection</Link>
+          </Button>
         </div>
       </section>
 
