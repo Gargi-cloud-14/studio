@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from 'next/link';
@@ -6,6 +7,7 @@ import { Logo } from '@/components/icons';
 import { useCart } from '@/hooks/useCart';
 import { Button } from '@/components/ui/button';
 import { UserNav } from '@/components/UserNav';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 export function Header() {
   const { totalItems } = useCart();
@@ -37,6 +39,7 @@ export function Header() {
               </Link>
             </Button>
           ))}
+          <ThemeToggle />
           <UserNav />
         </nav>
       </div>
