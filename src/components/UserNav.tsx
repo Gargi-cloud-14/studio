@@ -25,11 +25,6 @@ export function UserNav() {
     logout(clearCart);
   };
 
-  const getInitials = (name?: string | null) => {
-    if (!name) return '??';
-    return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
-  };
-
   if (!user) {
     return (
       <Button variant="ghost" size="icon" onClick={showLogin}>
@@ -44,10 +39,9 @@ export function UserNav() {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-8 w-8">
-            {user.photoURL && <AvatarImage src={user.photoURL} alt={user.displayName || ''} />}
              <div className="absolute inset-0.5 rounded-full bg-gradient-to-tr from-accent to-purple-500" />
             <AvatarFallback className="bg-transparent text-white font-bold text-xs">
-                {getInitials(user.displayName)}
+                {user.initials}
             </AvatarFallback>
           </Avatar>
         </Button>
@@ -55,7 +49,7 @@ export function UserNav() {
       <DropdownMenuContent className="w-56 font-body" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">{user.displayName || 'Anonymous'}</p>
+            <p className="text-sm font-medium leading-none">{user.name || 'Anonymous'}</p>
             <p className="text-xs leading-none text-muted-foreground">
               {user.email}
             </p>

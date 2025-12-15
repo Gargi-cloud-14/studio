@@ -7,22 +7,20 @@ import Link from 'next/link';
 import { CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/hooks/useCart';
-import { useUser } from '@/firebase';
-import { collection, doc, setDoc, serverTimestamp } from 'firebase/firestore';
-import { useFirestore } from '@/firebase';
+import { useAuth } from '@/hooks/useAuth';
+import { orders } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
 
 function SuccessContent() {
   const searchParams = useSearchParams();
   const sessionId = searchParams.get('session_id');
   const { items: cartItems, totalPrice, clearCart } = useCart();
-  const { data: user } = useUser();
-  const firestore = useFirestore();
+  const { user } = useAuth();
   const { toast } = useToast();
 
   useEffect(() => {
     async function createOrder() {
-      if (sessionId && user && cartItems.length > 0 && firestore) {
+      if (sessionId && user && cartItems.length > 0) {
         
         const accessDurationParam = searchParams.get('accessDuration');
         const hasDigitalProduct = cartItems.some(item => item.product.isDigital);
@@ -30,11 +28,19 @@ function SuccessContent() {
         
         // Use a consistent portion of the session ID for the order ID to prevent duplicates.
         const orderId = sessionId.substring(0, 20); 
-        const orderRef = doc(firestore, 'orders', orderId);
+
+        // Check if order already exists
+        const existingOrder = orders.find(o => o.id === orderId);
+
+        if (existingOrder) {
+          // Order already processed, just ensure cart is clear
+          clearCart();
+          return;
+        }
 
         const newOrder = {
           id: orderId,
-          userId: user.uid,
+          userId: user.id,
           items: cartItems.map(item => ({
             product: { ...item.product }, // Make sure product is a plain object
             quantity: item.quantity,
@@ -49,9 +55,9 @@ function SuccessContent() {
         };
 
         try {
-          // Use setDoc with merge:true to create or update, preventing duplicates on page refresh.
-          await setDoc(orderRef, newOrder, { merge: true }); 
-          // Clear cart only after successful order creation in Firestore.
+          // Add to mock orders array
+          orders.push(newOrder); 
+          // Clear cart only after successful order creation.
           clearCart();
         } catch (error) {
           console.error("Error creating order:", error);
@@ -64,13 +70,10 @@ function SuccessContent() {
       }
     }
     
-    // Only run if we have the necessary data.
-    if (sessionId && user && firestore) {
+    if (sessionId && user) {
       createOrder();
     }
-    // We only clear the cart on success now.
-    // The dependency array ensures this effect runs only when these values change.
-  }, [sessionId, user, cartItems, totalPrice, searchParams, firestore, clearCart, toast]);
+  }, [sessionId, user, cartItems, totalPrice, searchParams, clearCart, toast]);
 
   return (
     <div className="container mx-auto px-4 py-24 text-center">

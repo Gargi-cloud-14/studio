@@ -1,50 +1,18 @@
 
 "use client";
 
-import { useState, useEffect } from 'react';
-import { onSnapshot, type DocumentReference, type DocumentData } from 'firebase/firestore';
+// This file is part of the Firebase integration and is currently not in use.
+// This mock hook returns a null document.
 
-interface UseDocResponse<T> {
-  data: T | null;
-  loading: boolean;
-  error: Error | null;
-}
+import { useEffect, useState } from 'react';
 
-export function useDoc<T extends DocumentData>(
-  ref: DocumentReference<T> | null
-): UseDocResponse<T> {
-  const [data, setData] = useState<T | null>(null);
+export function useDoc<T>(
+  ref: any
+) {
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
-
   useEffect(() => {
-    if (!ref) {
-      setLoading(false);
-      setData(null);
-      return;
-    }
-
-    setLoading(true);
-
-    const unsubscribe = onSnapshot(
-      ref,
-      (doc) => {
-        if (doc.exists()) {
-          setData({ ...doc.data(), id: doc.id });
-        } else {
-          setData(null);
-        }
-        setLoading(false);
-      },
-      (err) => {
-        console.error("Error fetching document:", err);
-        setError(err);
-        setLoading(false);
-      }
-    );
-
-    return () => unsubscribe();
+    setLoading(false);
   }, [ref]);
-
-  return { data, loading, error };
+  
+  return { data: null, loading: false, error: null };
 }

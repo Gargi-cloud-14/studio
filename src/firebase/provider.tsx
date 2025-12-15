@@ -1,48 +1,30 @@
 
 "use client"
 
-import React, { createContext, useContext, ReactNode, useMemo } from 'react';
-import type { FirebaseApp } from 'firebase/app';
-import type { Auth } from 'firebase/auth';
-import type { Firestore } from 'firebase/firestore';
+// This file is part of the Firebase integration and is currently not in use.
 
-interface FirebaseContextType {
-  app: FirebaseApp;
-  auth: Auth;
-  firestore: Firestore;
-}
+import React, { ReactNode } from 'react';
 
-const FirebaseContext = createContext<FirebaseContextType | undefined>(undefined);
+// Mock context and providers so dependent components don't break.
+const MockContext = React.createContext(undefined);
 
-interface FirebaseProviderProps {
-  children: ReactNode;
-  value: FirebaseContextType;
-}
-
-export const FirebaseProvider = ({ children, value }: FirebaseProviderProps) => {
+export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
   return (
-    <FirebaseContext.Provider value={value}>
+    <MockContext.Provider value={undefined}>
       {children}
-    </FirebaseContext.Provider>
+    </MockContext.Provider>
   );
 };
 
-export const useFirebase = () => {
-  const context = useContext(FirebaseContext);
-  if (context === undefined) {
-    throw new Error('useFirebase must be used within a FirebaseProvider');
-  }
-  return context;
-};
-
-export const useFirebaseApp = () => useFirebase().app;
-export const useAuth = () => useFirebase().auth;
-export const useFirestore = () => useFirebase().firestore;
-
+// Mock hooks that return dummy values.
+export const useFirebase = () => { throw new Error('Firebase is not connected.'); };
+export const useFirebaseApp = () => { throw new Error('Firebase is not connected.'); };
+export const useAuth = () => { throw new Error('Firebase is not connected.'); };
+export const useFirestore = () => { throw new Error('Firebase is not connected.'); };
 export function useMemoFirebase<T>(
   factory: () => T,
   deps: React.DependencyList,
 ): T {
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  return useMemo(factory, deps);
+  return React.useMemo(factory, deps);
 }

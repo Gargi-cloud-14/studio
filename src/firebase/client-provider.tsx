@@ -1,28 +1,16 @@
 
 "use client";
 
+// This file is part of the Firebase integration and is currently not in use.
+// To re-enable Firebase, you would wrap your app's layout with this provider.
+
 import React from "react";
-import { FirebaseProvider } from "./provider";
-import { initializeFirebase } from ".";
 
 export function FirebaseClientProvider({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [firebase, setFirebase] = React.useState<
-    ReturnType<typeof initializeFirebase> | undefined
-  >(undefined);
-
-  React.useEffect(() => {
-    const { app, auth, firestore } = initializeFirebase();
-    setFirebase({ app, auth, firestore });
-  }, []);
-
-  if (!firebase) {
-    // You can show a loading spinner here
-    return <div>Loading Firebase...</div>;
-  }
-
-  return <FirebaseProvider value={firebase}>{children}</FirebaseProvider>;
+  // Since Firebase is disconnected, we just render the children.
+  return <>{children}</>;
 }

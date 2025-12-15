@@ -1,31 +1,19 @@
 
 "use client";
 
+// This file is part of the Firebase integration and is currently not in use.
+// This mock hook returns a null user.
+
 import { useEffect, useState } from 'react';
-import { onAuthStateChanged, type User } from 'firebase/auth';
-import { useAuth } from '../provider';
 
 export function useUser() {
-  const auth = useAuth();
-  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(
-      auth,
-      (user) => {
-        setUser(user);
-        setLoading(false);
-      },
-      (error) => {
-        setError(error);
-        setLoading(false);
-      }
-    );
+    // Simulate loading delay
+    const timer = setTimeout(() => setLoading(false), 500);
+    return () => clearTimeout(timer);
+  }, []);
 
-    return () => unsubscribe();
-  }, [auth]);
-
-  return { data: user, loading, error };
+  return { data: null, loading, error: null };
 }

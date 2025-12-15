@@ -129,3 +129,5 @@ export const products: Product[] = [
     }
   },
 ];
+
+export const orders: Order[] = [];

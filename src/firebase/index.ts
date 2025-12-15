@@ -1,31 +1,28 @@
 
-import { initializeApp, getApps, type FirebaseApp } from 'firebase/app';
-import { getAuth, type Auth } from 'firebase/auth';
-import { getFirestore, type Firestore } from 'firebase/firestore';
-import { firebaseConfig } from './config';
+// This file is part of the Firebase integration and is currently not in use.
+// The exports here are placeholders to prevent breaking other parts of the application.
 
-export function initializeFirebase(): {
-  app: FirebaseApp;
-  auth: Auth;
-  firestore: Firestore;
-} {
-  const apps = getApps();
-  const app = apps.length > 0 ? apps[0] : initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const firestore = getFirestore(app);
-
-  return { app, auth, firestore };
+// Mock initialization
+export function initializeFirebase() {
+  console.warn("Firebase is not connected. Using mock implementation.");
+  return {
+    app: null,
+    auth: null,
+    firestore: null,
+  };
 }
 
+// Re-export mock providers and hooks
 export {
   FirebaseProvider,
   useFirebase,
   useFirebaseApp,
-  useAuth as useFirebaseAuth, // renamed to avoid conflict with local useAuth
+  useAuth as useFirebaseAuth,
   useFirestore,
   useMemoFirebase,
 } from './provider';
 
+// Re-export mock data hooks
 export { useUser } from './auth/use-user';
 export { useCollection } from './firestore/use-collection';
 export { useDoc } from './firestore/use-doc';

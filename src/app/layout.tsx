@@ -7,7 +7,6 @@ import { CartProvider } from '@/hooks/useCart';
 import { Toaster } from '@/components/ui/toaster';
 import { AuthProvider } from '@/hooks/useAuth';
 import { ThemeProvider } from '@/hooks/useTheme';
-import { FirebaseClientProvider } from '@/firebase/client-provider';
 
 export const metadata: Metadata = {
   title: 'Pixel & Forge',
@@ -32,7 +31,6 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased flex flex-col min-h-screen">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <FirebaseClientProvider>
             <CartProvider>
               <AuthProvider>
                 <Header />
@@ -41,7 +39,6 @@ export default function RootLayout({
                 <Toaster />
               </AuthProvider>
             </CartProvider>
-          </FirebaseClientProvider>
         </ThemeProvider>
       </body>
     </html>

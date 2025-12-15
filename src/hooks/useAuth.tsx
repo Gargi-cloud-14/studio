@@ -1,42 +1,45 @@
 
 "use client";
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { LoginModal } from '@/components/LoginModal';
-import type { User as FirebaseUser } from 'firebase/auth';
-import { useUser } from '@/firebase';
-import { getAuth, signOut } from 'firebase/auth';
+import type { User } from '@/lib/types';
 
 interface AuthContextType {
-  user: FirebaseUser | null;
+  user: User | null;
   loading: boolean;
   showLogin: () => void;
   hideLogin: () => void;
-  login: (user: FirebaseUser) => void;
-  logout: (clearCart: () => void) => void;
+  login: (user: User) => void;
+  logout: (onLogout?: () => void) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const { data: user, loading, error } = useUser();
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
   const [isLoginVisible, setLoginVisible] = useState(false);
   
+  useEffect(() => {
+    // In a real app, you'd check a token or session here.
+    // For this mock-up, we'll just start with no user.
+    setLoading(false);
+  }, []);
+
   const showLogin = () => setLoginVisible(true);
   const hideLogin = () => setLoginVisible(false);
 
-  // This function is called from the LoginModal after a successful Firebase login
-  const login = (firebaseUser: FirebaseUser) => {
-    // The useUser hook will automatically update the user state.
-    // We just need to close the modal.
+  const login = (user: User) => {
+    setUser(user);
     hideLogin();
   };
 
-  const logout = async (clearCart: () => void) => {
-    const auth = getAuth();
-    await signOut(auth);
-    // The useUser hook will automatically set user to null.
-    clearCart();
+  const logout = (onLogout?: () => void) => {
+    setUser(null);
+    if (onLogout) {
+      onLogout();
+    }
   };
   
   const value = {

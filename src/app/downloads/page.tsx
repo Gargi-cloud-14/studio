@@ -1,14 +1,13 @@
 
 "use client";
 
-import { useUser } from '@/firebase';
+import { useState, useEffect } from 'react';
 import { DownloadItem } from '@/components/DownloadItem';
 import { Button } from '@/components/ui/button';
 import { DownloadCloud, UserX, Loader2 } from 'lucide-react';
 import type { CartItem, Order } from '@/lib/types';
 import { useAuth } from '@/hooks/useAuth';
-import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
-import { collection, query, where, orderBy } from 'firebase/firestore';
+import { orders as allOrders } from '@/lib/data';
 
 interface DigitalItemEntry {
   product: CartItem['product'];
@@ -16,20 +15,18 @@ interface DigitalItemEntry {
 }
 
 export default function DownloadsPage() {
-  const { showLogin } = useAuth();
-  const { data: user, loading: userLoading } = useUser();
-  const firestore = useFirestore();
+  const { user, showLogin, loading: userLoading } = useAuth();
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [ordersLoading, setOrdersLoading] = useState(true);
 
-  const ordersQuery = useMemoFirebase(() => {
-    if (!firestore || !user?.uid) return null;
-    return query(
-      collection(firestore, 'orders'), 
-      where('userId', '==', user.uid),
-      orderBy('date', 'desc')
-    );
-  }, [firestore, user?.uid]);
-
-  const { data: orders, loading: ordersLoading } = useCollection<Order>(ordersQuery);
+  useEffect(() => {
+    if (user) {
+      setOrders(allOrders.filter(o => o.userId === user.id));
+    } else {
+      setOrders([]);
+    }
+    setOrdersLoading(false);
+  }, [user]);
 
   if (userLoading) {
     return (
@@ -53,7 +50,7 @@ export default function DownloadsPage() {
     );
   }
 
-  const digitalItems: DigitalItemEntry[] = (orders || []).flatMap(order => 
+  const digitalItems: DigitalItemEntry[] = orders.flatMap(order => 
     order.items
       .filter(item => item.product.isDigital)
       .map(item => ({ product: item.product, order }))
@@ -65,7 +62,7 @@ export default function DownloadsPage() {
         <div className="text-center mb-12">
           <h1 className="font-headline text-4xl">My Downloads</h1>
           <p className="mt-2 text-muted-foreground">
-            Hi {user?.displayName || 'there'}, here are your purchased digital assets.
+            Hi {user?.name || 'there'}, here are your purchased digital assets.
           </p>
         </div>
 

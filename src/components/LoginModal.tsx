@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
 import { Chrome, Loader2 } from 'lucide-react';
-import { getAuth, signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
+import type { User } from '@/lib/types';
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -24,49 +24,42 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
   const [loading, setLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
 
-  const auth = getAuth();
-
   const handleAuthAction = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
-    
-    try {
-      let userCredential;
-      if (isSignUp) {
-        userCredential = await createUserWithEmailAndPassword(auth, email, password);
+
+    // Mock authentication logic
+    setTimeout(() => {
+      if (email && password) {
+        const mockUser: User = {
+          id: `user_${Date.now()}`,
+          name: email.split('@')[0],
+          email: email,
+          initials: email.substring(0, 2).toUpperCase(),
+        };
+        login(mockUser);
       } else {
-        try {
-          userCredential = await signInWithEmailAndPassword(auth, email, password);
-        } catch (signInError: any) {
-          // If sign-in fails, try to sign up instead for a smoother user experience in this prototype.
-          if (signInError.code === 'auth/user-not-found' || signInError.code === 'auth/wrong-password') {
-            userCredential = await createUserWithEmailAndPassword(auth, email, password);
-          } else {
-            throw signInError;
-          }
-        }
+        setError("Please enter email and password.");
       }
-      login(userCredential.user);
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
       setLoading(false);
-    }
+    }, 1000);
   };
 
   const handleGoogleSignIn = async () => {
     setLoading(true);
     setError('');
-    const provider = new GoogleAuthProvider();
-    try {
-      const result = await signInWithPopup(auth, provider);
-      login(result.user);
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
+    // Mock Google sign-in
+    setTimeout(() => {
+        const mockUser: User = {
+            id: 'user_google_123',
+            name: 'Google User',
+            email: 'google.user@example.com',
+            initials: 'GU'
+        };
+        login(mockUser);
+        setLoading(false);
+    }, 1000);
   };
   
   const toggleAuthMode = () => {
