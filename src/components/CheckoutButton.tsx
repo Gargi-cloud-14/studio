@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from 'react';
@@ -7,7 +8,11 @@ import { Loader2, CreditCard } from 'lucide-react';
 import { useCart } from '@/hooks/useCart';
 import { useToast } from '@/hooks/use-toast';
 
-export function CheckoutButton() {
+interface CheckoutButtonProps {
+  accessDuration?: number;
+}
+
+export function CheckoutButton({ accessDuration }: CheckoutButtonProps) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { items, clearCart } = useCart();
@@ -21,7 +26,7 @@ export function CheckoutButton() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ items }),
+        body: JSON.stringify({ items, accessDuration }),
       });
 
       const body = await response.json();
@@ -31,10 +36,9 @@ export function CheckoutButton() {
       }
 
       if (body.url) {
-        // Before redirecting, we can clear the cart.
-        // Or we could do this on the success page after payment confirmation.
-        // For now, we'll clear it on successful redirection initiation.
-        // clearCart(); 
+        // Stripe will redirect, but good to clear the cart now.
+        // We could also do this on the success page, but this feels cleaner.
+        clearCart(); 
         router.push(body.url); // Redirect to Stripe's checkout page
       } else {
         throw new Error('Stripe URL not returned');

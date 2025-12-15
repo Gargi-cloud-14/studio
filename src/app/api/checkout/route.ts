@@ -1,3 +1,4 @@
+
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import type { CartItem } from '@/lib/types';
@@ -14,7 +15,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 });
 
 export async function POST(request: Request) {
-  const { items }: { items: CartItem[] } = await request.json();
+  const { items, accessDuration }: { items: CartItem[], accessDuration?: number } = await request.json();
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:9002';
   
   if (!items || items.length === 0) {
@@ -35,14 +36,23 @@ export async function POST(request: Request) {
     },
     quantity: item.quantity,
   }));
+  
+  const metadata: Stripe.MetadataParam = {};
+  if (accessDuration) {
+    metadata.accessDuration = accessDuration.toString();
+  }
 
   try {
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: line_items,
       mode: 'payment',
-      success_url: `${baseUrl}/success`,
+      success_url: `${baseUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${baseUrl}/cancel`,
+      metadata: metadata,
+      payment_intent_data: {
+        metadata: metadata,
+      },
     });
 
     if (session.url) {

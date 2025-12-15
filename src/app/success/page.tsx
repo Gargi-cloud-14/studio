@@ -1,8 +1,45 @@
+
+"use client";
+
+import { useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { orders } from '@/lib/data';
+import { useCart } from '@/hooks/useCart';
 
-export default function SuccessPage() {
+function SuccessContent() {
+  const searchParams = useSearchParams();
+  const sessionId = searchParams.get('session_id');
+  const { items: cartItems, totalPrice } = useCart(); // We'll use the cart state before it was cleared
+
+  useEffect(() => {
+    if (sessionId && cartItems.length > 0) {
+      // In a real app, you'd fetch the session from Stripe to verify payment
+      // and get the metadata. Here, we'll simulate order creation.
+      
+      const accessDurationString = searchParams.get('accessDuration');
+      const accessDuration = accessDurationString ? parseInt(accessDurationString, 10) : 86400; // default
+      
+      const newOrder = {
+        id: sessionId.substring(0, 12),
+        items: cartItems,
+        status: 'Paid' as const,
+        date: new Date().toISOString(),
+        total: totalPrice,
+        accessDuration: accessDuration,
+        linkActivatedAt: new Date().toISOString(), // Start the timer now!
+      };
+
+      // Add to our mock database
+      // Avoid adding duplicates if the user refreshes
+      if (!orders.find(o => o.id === newOrder.id)) {
+        orders.push(newOrder);
+      }
+    }
+  }, [sessionId, cartItems, totalPrice, searchParams]);
+
   return (
     <div className="container mx-auto px-4 py-24 text-center">
       <CheckCircle className="mx-auto h-24 w-24 text-green-500" />
@@ -10,9 +47,22 @@ export default function SuccessPage() {
       <p className="mt-2 text-muted-foreground">
         Thank you for your purchase. Your order is being processed.
       </p>
-      <Button asChild className="mt-8">
-        <Link href="/">Continue Shopping</Link>
-      </Button>
+      <div className="mt-8 flex justify-center gap-4">
+        <Button asChild>
+          <Link href="/downloads">View My Downloads</Link>
+        </Button>
+        <Button asChild variant="outline">
+          <Link href="/">Continue Shopping</Link>
+        </Button>
+      </div>
     </div>
+  );
+}
+
+export default function SuccessPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <SuccessContent />
+    </Suspense>
   );
 }
