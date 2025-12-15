@@ -36,7 +36,16 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
       if (isSignUp) {
         userCredential = await createUserWithEmailAndPassword(auth, email, password);
       } else {
-        userCredential = await signInWithEmailAndPassword(auth, email, password);
+        try {
+          userCredential = await signInWithEmailAndPassword(auth, email, password);
+        } catch (signInError: any) {
+          // If sign-in fails, try to sign up instead for a smoother user experience in this prototype.
+          if (signInError.code === 'auth/user-not-found' || signInError.code === 'auth/wrong-password') {
+            userCredential = await createUserWithEmailAndPassword(auth, email, password);
+          } else {
+            throw signInError;
+          }
+        }
       }
       login(userCredential.user);
     } catch (err: any) {
