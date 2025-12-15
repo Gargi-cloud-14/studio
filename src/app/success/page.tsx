@@ -15,12 +15,14 @@ function SuccessContent() {
   const { items: cartItems, totalPrice } = useCart(); // We'll use the cart state before it was cleared
 
   useEffect(() => {
+    // In a real app, you would fetch the session from Stripe to verify payment
+    // and get the metadata. In this prototype, we'll simulate order creation
+    // using the cart state from before redirection.
     if (sessionId && cartItems.length > 0) {
-      // In a real app, you'd fetch the session from Stripe to verify payment
-      // and get the metadata. Here, we'll simulate order creation.
       
-      const accessDurationString = searchParams.get('accessDuration');
-      const accessDuration = accessDurationString ? parseInt(accessDurationString, 10) : 86400; // default
+      // In a real app, you'd retrieve this from the Stripe session object
+      // const accessDuration = session.metadata.accessDuration
+      const accessDuration = 86400; // Default to 24h for prototype
       
       const newOrder = {
         id: sessionId.substring(0, 12),
@@ -38,6 +40,7 @@ function SuccessContent() {
         orders.push(newOrder);
       }
     }
+    // The cart is cleared in CheckoutButton.tsx before redirecting to Stripe
   }, [sessionId, cartItems, totalPrice, searchParams]);
 
   return (
