@@ -1,3 +1,4 @@
+
 import type { Product, Order } from './types';
 import data from './placeholder-images.json';
 
@@ -128,5 +129,3 @@ export const products: Product[] = [
     }
   },
 ];
-
-export const orders: Order[] = [];

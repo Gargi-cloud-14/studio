@@ -1,12 +1,15 @@
 
 "use client";
 
-import { useAuth } from '@/hooks/useAuth';
-import { orders } from '@/lib/data';
+import { useUser } from '@/firebase';
 import { DownloadItem } from '@/components/DownloadItem';
 import { Button } from '@/components/ui/button';
 import { DownloadCloud, UserX } from 'lucide-react';
 import type { CartItem, Order } from '@/lib/types';
+import { useAuth } from '@/hooks/useAuth';
+import { useCollection } from '@/firebase';
+import { collection, query, where, orderBy } from 'firebase/firestore';
+import { useFirestore } from '@/firebase';
 
 interface DigitalItemEntry {
   product: CartItem['product'];
@@ -14,9 +17,18 @@ interface DigitalItemEntry {
 }
 
 export default function DownloadsPage() {
-  const { isLoggedIn, user, showLogin } = useAuth();
+  const { showLogin } = useAuth();
+  const { data: user } = useUser();
+  const firestore = useFirestore();
 
-  if (!isLoggedIn || !user) {
+  const ordersQuery = user ? query(
+    collection(firestore, 'orders'), 
+    where('userId', '==', user.uid),
+    orderBy('date', 'desc')
+  ) : null;
+  const { data: orders, loading } = useCollection<Order>(ordersQuery);
+
+  if (!user && !loading) {
     return (
       <div className="container mx-auto px-4 py-24 text-center">
         <UserX className="mx-auto h-24 w-24 text-muted-foreground" />
@@ -29,17 +41,11 @@ export default function DownloadsPage() {
     );
   }
 
-  // Filter orders that belong to the logged-in user.
-  const userOrders = orders.filter(order => order.userId === user.id);
-  
-  const digitalItems: DigitalItemEntry[] = userOrders.flatMap(order => 
+  const digitalItems: DigitalItemEntry[] = (orders || []).flatMap(order => 
     order.items
       .filter(item => item.product.isDigital)
       .map(item => ({ product: item.product, order }))
   );
-
-  // In this prototype, we'll show every purchased instance.
-  // A real app might unique-ify by product ID if desired.
 
   return (
     <div className="container mx-auto px-4 py-12 animate-in fade-in-0">
@@ -47,17 +53,19 @@ export default function DownloadsPage() {
         <div className="text-center mb-12">
           <h1 className="font-headline text-4xl">My Downloads</h1>
           <p className="mt-2 text-muted-foreground">
-            Hi {user?.name}, here are your purchased digital assets.
+            Hi {user?.displayName || 'there'}, here are your purchased digital assets.
           </p>
         </div>
 
-        {digitalItems.length > 0 ? (
+        {loading && <div className="text-center">Loading your downloads...</div>}
+
+        {!loading && digitalItems.length > 0 ? (
           <div className="space-y-4">
             {digitalItems.map(({ product, order }) => (
               <DownloadItem key={`${order.id}-${product.id}`} product={product} order={order} />
             ))}
           </div>
-        ) : (
+        ) : !loading && (
           <div className="text-center border-2 border-dashed rounded-lg p-12">
             <DownloadCloud className="mx-auto h-16 w-16 text-muted-foreground" />
             <h2 className="font-headline text-2xl mt-6">No Downloads Yet</h2>

@@ -8,7 +8,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
-import { Chrome } from 'lucide-react';
+import { Chrome, Loader2 } from 'lucide-react';
+import { getAuth, signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -19,27 +20,47 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
   const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState(false);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const auth = getAuth();
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, you'd validate credentials against a backend.
-    // Here we'll simulate a failure for a specific password.
-    if (password === 'fail') {
-      setError(true);
-      setTimeout(() => setError(false), 500); // Reset shake animation
-    } else {
-      // For this prototype, we'll use the email as the name for the avatar.
-      const name = email.split('@')[0];
-      login(email, name);
-      setEmail('');
-      setPassword('');
+    setLoading(true);
+    setError('');
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      login(userCredential.user);
+    } catch (err: any) {
+      // If user doesn't exist, try to create a new account
+      if (err.code === 'auth/user-not-found') {
+        try {
+          const newUserCredential = await createUserWithEmailAndPassword(auth, email, password);
+          login(newUserCredential.user);
+        } catch (createErr: any) {
+          setError(createErr.message);
+        }
+      } else {
+        setError(err.message);
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleGoogleSignIn = () => {
-    // Mock Google Sign-In
-    login('user@google.com', 'Googler');
+  const handleGoogleSignIn = async () => {
+    setLoading(true);
+    setError('');
+    const provider = new GoogleAuthProvider();
+    try {
+      const result = await signInWithPopup(auth, provider);
+      login(result.user);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -49,12 +70,13 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
       >
         <DialogHeader>
           <DialogTitle className="font-headline text-3xl text-center text-primary">
-            Welcome Back
+            Welcome
           </DialogTitle>
           <DialogDescription className="text-center text-muted-foreground">
-            Sign in to access your account.
+            Sign in or create an account to continue.
           </DialogDescription>
         </DialogHeader>
+        {error && <p className="text-destructive text-sm text-center">{error}</p>}
         <form onSubmit={handleLogin} className={cn('space-y-6', error && 'shake')}>
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
@@ -66,6 +88,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
               onChange={(e) => setEmail(e.target.value)}
               required
               className="bg-white/50 border-white/30"
+              disabled={loading}
             />
           </div>
           <div className="space-y-2">
@@ -78,10 +101,11 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
               onChange={(e) => setPassword(e.target.value)}
               required
               className="bg-white/50 border-white/30"
+              disabled={loading}
             />
           </div>
-          <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
-            Sign In
+          <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90" disabled={loading}>
+            {loading ? <Loader2 className="animate-spin" /> : 'Sign In / Sign Up'}
           </Button>
         </form>
         <div className="relative my-4">
@@ -94,15 +118,10 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
             </span>
           </div>
         </div>
-        <Button variant="outline" className="w-full" onClick={handleGoogleSignIn}>
+        <Button variant="outline" className="w-full" onClick={handleGoogleSignIn} disabled={loading}>
           <Chrome className="mr-2 h-4 w-4" />
           Sign in with Google
         </Button>
-        <div className="mt-4 text-center text-sm">
-          <a href="#" className="underline text-muted-foreground hover:text-primary">
-            Forgot your password?
-          </a>
-        </div>
       </DialogContent>
     </Dialog>
   );

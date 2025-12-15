@@ -1,0 +1,111 @@
+
+{
+  "entities": {
+    "Product": {
+      "title": "Product",
+      "description": "Represents an item available for sale in the store.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique identifier for the product." },
+        "name": { "type": "string", "description": "Display name of the product." },
+        "description": { "type": "string", "description": "Detailed description of the product." },
+        "price": { "type": "number", "description": "Price of the product in USD." },
+        "isDigital": { "type": "boolean", "description": "True if the product is a digital good." },
+        "imageId": { "type": "string", "description": "ID for the placeholder image." },
+        "specs": { "type": "object", "description": "Product specifications." }
+      },
+      "required": ["id", "name", "price", "isDigital", "imageId"]
+    },
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "Stores public and private information about a user.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "The user's unique ID from Firebase Authentication." },
+        "email": { "type": "string", "format": "email", "description": "The user's email address." },
+        "displayName": { "type": "string", "description": "The user's public display name." },
+        "photoURL": { "type": "string", "format": "uri", "description": "URL of the user's profile picture." }
+      },
+      "required": ["id", "email"]
+    },
+    "ShippingAddress": {
+      "title": "Shipping Address",
+      "description": "A user's physical shipping address.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "address": { "type": "string" },
+        "city": { "type": "string" },
+        "state": { "type": "string" },
+        "zip": { "type": "string" }
+      },
+      "required": ["id", "name", "address", "city", "state", "zip"]
+    },
+    "Order": {
+      "title": "Order",
+      "description": "Represents a customer's order.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "items": { "type": "array", "items": { "$ref": "#/entities/CartItem" } },
+        "status": { "type": "string", "enum": ["Paid", "Processing", "Shipped", "Delivered", "Cancelled"] },
+        "date": { "type": "string", "format": "date-time" },
+        "total": { "type": "number" },
+        "accessDuration": { "type": "number" },
+        "linkActivatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "userId", "items", "status", "date", "total"]
+    },
+    "CartItem": {
+        "title": "Cart Item",
+        "description": "An item within a shopping cart or order.",
+        "type": "object",
+        "properties": {
+            "product": { "$ref": "#/entities/Product" },
+            "quantity": { "type": "number" }
+        },
+        "required": ["product", "quantity"]
+    },
+    "DigitalDownload": {
+      "title": "Digital Download",
+      "description": "Represents a user's access to a digital product.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "orderId": { "type": "string" },
+        "productId": { "type": "string" },
+        "downloadUrl": { "type": "string", "format": "uri" },
+        "expiresAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "userId", "orderId", "productId", "downloadUrl", "expiresAt"]
+    }
+  },
+  "auth": {
+    "providers": ["password", "google.com"]
+  },
+  "firestore": {
+    "/products/{productId}": {
+      "schema": { "$ref": "#/entities/Product" },
+      "description": "Publicly readable product catalog. Writes are disabled for clients."
+    },
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "User profile document."
+    },
+    "/users/{userId}/shippingAddresses/{shippingAddressId}": {
+      "schema": { "$ref": "#/entities/ShippingAddress" },
+      "description": "User's private shipping addresses."
+    },
+    "/users/{userId}/orders/{orderId}": {
+      "schema": { "$ref": "#/entities/Order" },
+      "description": "User's order history. Read-only for the client."
+    },
+    "/users/{userId}/digitalDownloads/{digitalDownloadId}": {
+      "schema": { "$ref": "#/entities/DigitalDownload" },
+      "description": "User's purchased digital downloads. Read-only for the client."
+    }
+  }
+}

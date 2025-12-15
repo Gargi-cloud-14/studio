@@ -1,0 +1,40 @@
+
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Products are public readable
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if false; // Managed by a backend service
+    }
+
+    // Users can only access their own data
+    match /users/{userId} {
+      allow read, write: if isOwner(userId);
+
+      // Orders can be read by the owner, but created only by the backend
+      match /orders/{orderId} {
+        allow read, list: if isOwner(userId);
+        allow create, update, delete: if false; // Created by backend after payment
+      }
+    }
+    
+    // Orders collection for simplified queries
+    match /orders/{orderId} {
+      allow read: if isOwner(resource.data.userId);
+      allow list: if isSignedIn() && request.query.where.field == "userId" && request.query.where.value == request.auth.uid;
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid; // Allow client to create for now
+      allow update, delete: if false; // Immutable from client
+    }
+  }
+}

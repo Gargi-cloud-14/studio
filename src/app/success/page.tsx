@@ -6,50 +6,57 @@ import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { orders } from '@/lib/data';
 import { useCart } from '@/hooks/useCart';
-import { useAuth } from '@/hooks/useAuth';
+import { useUser } from '@/firebase';
+import { collection, doc, setDoc } from 'firebase/firestore';
+import { useFirestore } from '@/firebase';
 
 function SuccessContent() {
   const searchParams = useSearchParams();
   const sessionId = searchParams.get('session_id');
-  const { items: cartItems, totalPrice } = useCart(); // We'll use the cart state before it was cleared
-  const { user } = useAuth();
+  const { items: cartItems, totalPrice, clearCart } = useCart();
+  const { data: user } = useUser();
+  const firestore = useFirestore();
 
   useEffect(() => {
-    // In a real app, you would fetch the session from Stripe to verify payment
-    // and get the metadata. In this prototype, we'll simulate order creation
-    // using the cart state from before redirection.
-    if (sessionId && user && cartItems.length > 0) {
-      
-      // In a real app, you'd retrieve this from the Stripe session object's metadata
-      // For the prototype, we get it from search params if available, or default.
-      const accessDurationParam = searchParams.get('accessDuration');
-      const hasDigitalProduct = cartItems.some(item => item.product.isDigital);
-      const accessDuration = accessDurationParam ? parseInt(accessDurationParam) : undefined;
-      
-      const newOrder = {
-        id: sessionId.substring(0, 12),
-        userId: user.id, // Associate the order with the logged-in user
-        items: cartItems,
-        status: 'Paid' as const,
-        date: new Date().toISOString(),
-        total: totalPrice,
-        // Only add these properties if a digital product was in the cart
-        ...(hasDigitalProduct && {
-            accessDuration: accessDuration,
-            linkActivatedAt: new Date().toISOString(), // Start the timer now!
-        })
-      };
+    async function createOrder() {
+      if (sessionId && user && cartItems.length > 0 && firestore) {
+        
+        const accessDurationParam = searchParams.get('accessDuration');
+        const hasDigitalProduct = cartItems.some(item => item.product.isDigital);
+        const accessDuration = accessDurationParam ? parseInt(accessDurationParam) : undefined;
+        
+        const orderId = sessionId.substring(0, 20);
+        const orderRef = doc(firestore, 'orders', orderId);
 
-      // Add to our mock database
-      // Avoid adding duplicates if the user refreshes
-      if (!orders.find(o => o.id === newOrder.id)) {
-        orders.push(newOrder);
+        const newOrder = {
+          id: orderId,
+          userId: user.uid,
+          items: cartItems,
+          status: 'Paid' as const,
+          date: new Date().toISOString(),
+          total: totalPrice,
+          ...(hasDigitalProduct && {
+              accessDuration: accessDuration,
+              linkActivatedAt: new Date().toISOString(),
+          })
+        };
+
+        try {
+          // Use setDoc to ensure we don't create duplicate orders on refresh.
+          await setDoc(orderRef, newOrder, { merge: true }); 
+          // Clear cart only after successful order creation
+          clearCart();
+        } catch (error) {
+          console.error("Error creating order:", error);
+          // Optionally, show a toast to the user
+        }
       }
     }
-    // The cart is cleared in CheckoutButton.tsx before redirecting to Stripe
-  }, [sessionId, cartItems, totalPrice, searchParams, user]);
+    
+    createOrder();
+    // We only clear the cart on success now.
+  }, [sessionId, user, cartItems, totalPrice, searchParams, firestore, clearCart]);
 
   return (
     <div className="container mx-auto px-4 py-24 text-center">
