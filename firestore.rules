@@ -29,9 +29,10 @@ service cloud.firestore {
       }
       
       // Purchases can be read by the owner, but created only by the backend
+      // This rule is deprecated in favor of the top-level /purchases collection
       match /purchases/{purchaseId} {
         allow read, list: if isOwner(userId);
-        allow create, update, delete: if false; // Created by backend after payment
+        allow create, update, delete: if false; 
       }
     }
     
@@ -41,6 +42,15 @@ service cloud.firestore {
       allow list: if isSignedIn() && request.query.where.field == "userId" && request.query.where.value == request.auth.uid;
       allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid; // Allow client to create for now
       allow update, delete: if false; // Immutable from client
+    }
+
+    // Digital purchases are stored in a top-level collection.
+    // Users can only read their own purchase documents.
+    match /purchases/{purchaseId} {
+        allow read: if isOwner(resource.data.userId);
+        allow list: if isSignedIn() && request.query.where[0] == "userId" && request.query.where[2] == request.auth.uid;
+        // Writes are only allowed from a trusted backend environment
+        allow create, update, delete: if false;
     }
   }
 }
