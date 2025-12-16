@@ -22,6 +22,8 @@ export async function POST(request: Request) {
 
   const hasDigitalProduct = items.some(item => item.product.isDigital);
   if (hasDigitalProduct && !userId) {
+    // While we don't persist users, we need some user context for digital goods to avoid checkout errors.
+    // In a real app this might be more robust.
     return NextResponse.json({ error: 'You must be logged in to purchase digital items.' }, { status: 401 });
   }
 
@@ -44,6 +46,19 @@ export async function POST(request: Request) {
   const successUrl = new URL('/success', baseUrl);
   successUrl.searchParams.append('session_id', '{CHECKOUT_SESSION_ID}');
 
+  // If there are digital items, pass the duration and product info to the success page
+  if (hasDigitalProduct) {
+    if (accessDuration) {
+      successUrl.searchParams.append('duration', String(accessDuration));
+    }
+    const digitalProducts = items.filter(i => i.product.isDigital).map(i => ({
+        name: i.product.name,
+        id: i.product.id
+    }));
+    successUrl.searchParams.append('digital_products', JSON.stringify(digitalProducts));
+  }
+
+
   try {
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -51,16 +66,9 @@ export async function POST(request: Request) {
       mode: 'payment',
       success_url: successUrl.toString(),
       cancel_url: `${baseUrl}/cancel`,
-      // Add metadata for the webhook to use
+      // We no longer use webhooks for this simplified flow, so metadata is less critical.
       metadata: {
         userId: userId || '',
-        cartItems: JSON.stringify(items.map(item => ({
-          productId: item.product.id,
-          name: item.product.name,
-          quantity: item.quantity,
-          isDigital: item.product.isDigital,
-        }))),
-        accessDuration: accessDuration ? String(accessDuration) : '',
       }
     });
 

@@ -13,9 +13,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { User, LogOut, Download } from 'lucide-react';
-import Link from 'next/link';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { User, LogOut } from 'lucide-react';
 
 export function UserNav() {
   const { user, showLogin, logout } = useAuth();
@@ -57,14 +56,8 @@ export function UserNav() {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem asChild>
-            <Link href="/downloads">
-              <Download className="mr-2" />
-              <span>My Downloads</span>
-            </Link>
-          </DropdownMenuItem>
+           {/* My Account or other links could go here */}
         </DropdownMenuGroup>
-        <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleLogout}>
           <LogOut className="mr-2" />
           <span>Log out</span>
