@@ -43,14 +43,5 @@ service cloud.firestore {
       allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid; // Allow client to create for now
       allow update, delete: if false; // Immutable from client
     }
-
-    // Digital purchases are stored in a top-level collection.
-    // Users can only read their own purchase documents.
-    match /purchases/{purchaseId} {
-        allow read: if isOwner(resource.data.userId);
-        allow list: if isSignedIn() && request.query.where[0] == "userId" && request.query.where[2] == request.auth.uid;
-        // Writes are only allowed from a trusted backend environment
-        allow create, update, delete: if false;
-    }
   }
 }

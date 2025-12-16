@@ -81,20 +81,6 @@
         "expiresAt": { "type": "string", "format": "date-time" }
       },
       "required": ["id", "userId", "orderId", "productId", "downloadUrl", "expiresAt"]
-    },
-    "Purchase": {
-      "title": "Purchase",
-      "description": "A record of a completed digital product purchase.",
-      "type": "object",
-      "properties": {
-        "userId": { "type": "string", "description": "The UID of the user who made the purchase." },
-        "productId": { "type": "string", "description": "The ID of the purchased product." },
-        "productName": { "type": "string", "description": "The name of the purchased product." },
-        "downloadUrl": { "type": "string", "format": "uri", "description": "The secure, signed URL for the download." },
-        "createdAt": { "type": "string", "format": "date-time", "description": "Timestamp of when the purchase was created." },
-        "expiresAt": { "type": "string", "format": "date-time", "description": "Timestamp of when the download link expires." }
-      },
-      "required": ["userId", "productId", "productName", "downloadUrl", "createdAt", "expiresAt"]
     }
   },
   "auth": {
@@ -120,10 +106,6 @@
     "/users/{userId}/digitalDownloads/{digitalDownloadId}": {
       "schema": { "$ref": "#/entities/DigitalDownload" },
       "description": "User's purchased digital downloads. Read-only for the client."
-    },
-    "/purchases/{purchaseId}": {
-        "schema": { "$ref": "#/entities/Purchase" },
-        "description": "Contains records of digital product purchases, secured per user."
     }
   }
 }
