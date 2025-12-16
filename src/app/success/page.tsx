@@ -4,9 +4,10 @@
 import { useEffect, useState, useMemo, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { CheckCircle, Download, AlertTriangle, Timer } from 'lucide-react';
+import { CheckCircle, Download, AlertTriangle, Timer, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/hooks/useCart';
+import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 
@@ -19,6 +20,7 @@ function SuccessContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { clearCart } = useCart();
+  const { toast } = useToast();
 
   const sessionId = searchParams.get('session_id');
   const duration = searchParams.get('duration');
@@ -47,7 +49,7 @@ function SuccessContent() {
 
     if (timeLeft <= 0) {
       setTimeout(() => {
-        router.push('/');
+        router.replace('/'); // Use replace to prevent back navigation
       }, 2000); // Wait 2 seconds before redirecting
       return;
     }
@@ -62,10 +64,11 @@ function SuccessContent() {
 
   const handleDownload = () => {
     // In a real app, this would trigger the file download.
-    // For this prototype, we'll just log it.
     console.log('Downloading products:', digitalProducts);
-    // Optionally redirect after download
-    // router.push('/');
+    toast({
+        title: "Download started!",
+        description: "Your file is being downloaded.",
+    });
   }
 
   const isExpired = hasDigitalProducts && timeLeft <= 0;
@@ -75,45 +78,53 @@ function SuccessContent() {
 
   if (hasDigitalProducts) {
     return (
-      <div className="container mx-auto px-4 py-12 flex justify-center items-center min-h-[70vh]">
-        <Card className="w-full max-w-lg text-center animate-in fade-in-0 duration-500">
-          <CardHeader>
-             {isExpired ? (
-                 <AlertTriangle className="mx-auto h-16 w-16 text-destructive mb-4" />
-             ) : (
-                <CheckCircle className="mx-auto h-16 w-16 text-green-500 mb-4" />
-             )}
-            <CardTitle className="font-headline text-3xl">
-              {isExpired ? 'Download Link Expired' : 'Your Download is Ready!'}
-            </CardTitle>
-            <CardDescription>
-              {isExpired
-                ? 'Your one-time download window has closed. Redirecting...'
-                : 'Thank you for your purchase! Your download link is available for a limited time.'}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="space-y-2">
-                {digitalProducts.map(p => <p key={p.id} className="font-semibold">{p.name}</p>)}
-            </div>
+      <div className="container mx-auto px-4 py-12 flex justify-center items-center min-h-[80vh]">
+        <div className="w-full max-w-lg relative">
+             <Button variant="ghost" size="sm" asChild className="absolute -top-8 left-0 text-muted-foreground">
+                <Link href="/">
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Back to Home
+                </Link>
+            </Button>
+            <Card className="text-center animate-in fade-in-0 duration-500">
+            <CardHeader>
+                {isExpired ? (
+                    <AlertTriangle className="mx-auto h-16 w-16 text-destructive mb-4" />
+                ) : (
+                    <CheckCircle className="mx-auto h-16 w-16 text-green-500 mb-4" />
+                )}
+                <CardTitle className="font-headline text-3xl">
+                {isExpired ? 'Download Link Expired' : 'Your Download is Ready!'}
+                </CardTitle>
+                <CardDescription>
+                {isExpired
+                    ? 'Your one-time download window has closed. Redirecting...'
+                    : 'Thank you! Your download link is available for a limited time.'}
+                </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+                <div className="space-y-2">
+                    {digitalProducts.map(p => <p key={p.id} className="font-semibold">{p.name}</p>)}
+                </div>
 
-            <div className="space-y-3">
-              <Button onClick={handleDownload} disabled={isExpired} size="lg" className="w-full">
-                <Download className="mr-2 h-5 w-5" />
-                {isExpired ? 'Expired' : 'Download Now'}
-              </Button>
-               <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                    <Timer className="h-4 w-4" />
-                    <span className="font-mono text-base">{String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}</span>
-                    <Progress value={progress} className="h-2 flex-grow" />
-               </div>
-            </div>
-            
-            <p className="text-xs text-muted-foreground pt-4">
-              This is a one-time download link. Please save your file in a safe place.
-            </p>
-          </CardContent>
-        </Card>
+                <div className="space-y-3">
+                <Button onClick={handleDownload} disabled={isExpired} size="lg" className="w-full">
+                    <Download className="mr-2 h-5 w-5" />
+                    {isExpired ? 'Expired' : 'Download Now'}
+                </Button>
+                <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                        <Timer className="h-4 w-4" />
+                        <span className="font-mono text-base">{String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}</span>
+                        <Progress value={progress} className="h-2 flex-grow" />
+                </div>
+                </div>
+                
+                <p className="text-xs text-muted-foreground pt-4">
+                This is a one-time download link. Please save your file in a safe place.
+                </p>
+            </CardContent>
+            </Card>
+        </div>
       </div>
     );
   }
