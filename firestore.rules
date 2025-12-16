@@ -27,6 +27,12 @@ service cloud.firestore {
         allow read, list: if isOwner(userId);
         allow create, update, delete: if false; // Created by backend after payment
       }
+      
+      // Purchases can be read by the owner, but created only by the backend
+      match /purchases/{purchaseId} {
+        allow read, list: if isOwner(userId);
+        allow create, update, delete: if false; // Created by backend after payment
+      }
     }
     
     // Orders collection for simplified queries

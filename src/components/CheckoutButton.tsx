@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Loader2, CreditCard } from 'lucide-react';
 import { useCart } from '@/hooks/useCart';
+import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 
 interface CheckoutButtonProps {
@@ -15,10 +16,23 @@ interface CheckoutButtonProps {
 export function CheckoutButton({ accessDuration }: CheckoutButtonProps) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const { items, clearCart } = useCart();
+  const { items } = useCart();
+  const { user, showLogin } = useAuth();
   const { toast } = useToast();
 
+  const hasDigitalProduct = items.some(item => item.product.isDigital);
+
   const handleCheckout = async () => {
+    if (hasDigitalProduct && !user) {
+        toast({
+            variant: 'destructive',
+            title: 'Authentication Required',
+            description: 'Please log in to purchase digital items.',
+        });
+        showLogin();
+        return;
+    }
+
     setLoading(true);
     try {
       const response = await fetch('/api/checkout', {
@@ -26,7 +40,7 @@ export function CheckoutButton({ accessDuration }: CheckoutButtonProps) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ items, accessDuration }),
+        body: JSON.stringify({ items, accessDuration, userId: user?.id }),
       });
 
       const body = await response.json();
@@ -36,10 +50,7 @@ export function CheckoutButton({ accessDuration }: CheckoutButtonProps) {
       }
 
       if (body.url) {
-        // Stripe will redirect, but good to clear the cart now.
-        // We could also do this on the success page, but this feels cleaner.
-        clearCart(); 
-        router.push(body.url); // Redirect to Stripe's checkout page
+        router.push(body.url);
       } else {
         throw new Error('Stripe URL not returned');
       }
